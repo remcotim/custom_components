@@ -3,7 +3,7 @@ Support to interface with Alexa Devices.
 
 For more details about this platform, please refer to the documentation at
 https://community.home-assistant.io/t/echo-devices-alexa-as-media-player-testers-needed/58639
-VERSION 0.9.6
+VERSION 0.9.7
 
 """
 import logging
@@ -49,20 +49,6 @@ ALEXA_DATA = "alexa_media"
 
 SERVICE_ALEXA_TTS = 'alexa_tts'
 SERVICE_ALEXA_SEQUENCE = 'alexa_sequence'
-
-# Alexa.Weather.Play
-# Alexa.Traffic.Play
-# Alexa.FlashBriefing.Play
-# Alexa.GoodMorning.Play
-# Alexa.GoodNight.Play
-# Alexa.SingASong.Play
-# Alexa.TellStory.Play
-# Alexa.FunFact.Play
-# Alexa.Joke.Play
-# Alexa.Music.PlaySearchPhrase
-# Alexa.Calendar.PlayTomorrow
-# Alexa.Calendar.PlayToday
-# Alexa.Calendar.PlayNext
 
 ATTR_MESSAGE = 'message'
 ALEXA_TTS_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
