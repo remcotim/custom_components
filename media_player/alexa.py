@@ -49,6 +49,7 @@ ALEXA_DATA = "alexa_media"
 
 SERVICE_ALEXA_TTS = 'alexa_tts'
 SERVICE_ALEXA_SEQUENCE = 'alexa_sequence'
+SERVICE_ALEXA_ROUTINE = 'alexa_routine'
 
 ATTR_MESSAGE = 'message'
 ALEXA_TTS_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
@@ -58,6 +59,11 @@ ALEXA_TTS_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
 ATTR_SEQUENCE = 'sequence'
 ALEXA_SEQUENCE_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
     vol.Required(ATTR_SEQUENCE): cv.string,
+})
+
+ATTR_ROUTINE = 'routine'
+ALEXA_ROUTINE_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
+    vol.Required(ATTR_ROUTINE): cv.string,
 })
 
 CONF_DEBUG = 'debug'
@@ -254,7 +260,14 @@ def setup_alexa(hass, config, add_devices_callback, login_obj):
                         sequence = call.data.get(ATTR_SEQUENCE)
                         _LOGGER.info("seqhandler "+ sequence)
                         alexa.send_sequence(sequence)
-
+            
+            def routine_handler(call):
+                for alexa in service_to_entities(call):
+                    if call.service == SERVICE_ALEXA_ROUTINE:
+                        routine = call.data.get(ATTR_ROUTINE)
+                        _LOGGER.info("seqhandler "+ routine)
+                        alexa.send_routine(routine)
+                        
             def service_to_entities(call):
                 """Return the known devices that a service call mentions."""
                 entity_ids = extract_entity_ids(hass, call)
@@ -270,6 +283,8 @@ def setup_alexa(hass, config, add_devices_callback, login_obj):
                                    schema=ALEXA_TTS_SCHEMA)
             hass.services.register(DOMAIN, SERVICE_ALEXA_SEQUENCE, sequence_handler,
                                    schema=ALEXA_SEQUENCE_SCHEMA)
+            hass.services.register(DOMAIN, SERVICE_ALEXA_ROUTINE, routine_handler,
+                                   schema=ALEXA_ROUTINE_SCHEMA)
             add_devices_callback(new_alexa_clients)
 
     update_devices()
@@ -601,6 +616,11 @@ class AlexaClient(MediaPlayerDevice):
         """Send sequence."""
         _LOGGER.info("send_sequence")
         self.alexa_api.send_sequence(sequence)
+        
+    def send_routine(self, routine):
+        """Send routine."""
+        _LOGGER.info("send_routine")
+        self.alexa_api.send_routine(routine)
 
     def play_media(self, media_type, media_id, **kwargs):
         """Send the play_media command to the media player."""
@@ -1041,6 +1061,18 @@ class AlexaAPI():
         }
         self._post_request('/api/behaviors/preview',
                            data=data)
+        
+    def send_routine(self, routine):
+        """Send message for Routine at speaker."""
+        """COMMAND="{\"behaviorId\":\"${AUTOMATION}\",\"sequenceJson\":\"${SEQUENCE}\",\"status\":\"ENABLED\"}"""
+        data = {
+            "behaviorId": \"" + routine + "\",
+            "sequenceJson": \"" + routine + "\",
+            "status": "ENABLED"
+        }
+        self._post_request('/api/behaviors/automations',
+                           data=data)
+
 
     def set_media(self, data):
         """Select the media player."""
